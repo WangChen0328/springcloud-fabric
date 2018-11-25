@@ -1,0 +1,214 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+version: '2'
+services:
+  z0:
+    container_name: z0
+    extends:
+      file: base/zookeeper-base.yaml
+      service: zookeeper
+    environment:
+      - ZOO_MY_ID=1
+      - ZOO_SERVERS=server.1=z0:2888:3888 server.2=z1:2888:3888 server.3=z2:2888:3888
+  z1:
+    container_name: z1
+    extends:
+      file: base/zookeeper-base.yaml
+      service: zookeeper
+    environment:
+      - ZOO_MY_ID=2
+      - ZOO_SERVERS=server.1=z0:2888:3888 server.2=z1:2888:3888 server.3=z2:2888:3888
+  z2:
+    container_name: z2
+    extends:
+      file: base/zookeeper-base.yaml
+      service: zookeeper
+    environment:
+      - ZOO_MY_ID=3
+      - ZOO_SERVERS=server.1=z0:2888:3888 server.2=z1:2888:3888 server.3=z2:2888:3888
+  k0:
+    container_name: k0
+    extends:
+      file: base/kafka-base.yaml
+      service: kafka
+    environment:
+      - KAFKA_BROKER_ID=0
+      - KAFKA_MIN_INSYNC_REPLICAS=2
+      - KAFKA_DEFAULT_REPLICATION_FACTOR=3
+      - KAFKA_ZOOKEEPER_CONNECT=z0:2181,z1:2181,z2:2181
+    depends_on:
+      - z0
+      - z1
+      - z2
+  k1:
+    container_name: k1
+    extends:
+      file: base/kafka-base.yaml
+      service: kafka
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_MIN_INSYNC_REPLICAS=2
+      - KAFKA_DEFAULT_REPLICATION_FACTOR=3
+      - KAFKA_ZOOKEEPER_CONNECT=z0:2181,z1:2181,z2:2181
+    depends_on:
+      - z0
+      - z1
+      - z2
+  k2:
+    container_name: k2
+    extends:
+      file: base/kafka-base.yaml
+      service: kafka
+    environment:
+      - KAFKA_BROKER_ID=2
+      - KAFKA_MIN_INSYNC_REPLICAS=2
+      - KAFKA_DEFAULT_REPLICATION_FACTOR=3
+      - KAFKA_ZOOKEEPER_CONNECT=z0:2181,z1:2181,z2:2181
+    depends_on:
+      - z0
+      - z1
+      - z2
+  orderer1.wangchen.com:
+    container_name: orderer1.wangchen.com
+    environment:
+      - ORDERER_GENERAL_LOCALMSPID=ordererMSP
+    extends:
+      file: base/orderer-base.yaml
+      service: orderer
+    volumes:
+      - ./channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
+      - ./crypto-config/ordererOrganizations/wangchen.com/orderers/orderer1.wangchen.com/msp:/var/hyperledger/orderer/msp
+      - ./crypto-config/ordererOrganizations/wangchen.com/orderers/orderer1.wangchen.com/tls:/var/hyperledger/orderer/tls
+    ports:
+      - 7050:7050
+    depends_on:
+      - k0
+      - k1
+      - k2
+  orderer2.wangchen.com:
+    container_name: orderer2.wangchen.com
+    environment:
+      - ORDERER_GENERAL_LOCALMSPID=ordererMSP
+    extends:
+      file: base/orderer-base.yaml
+      service: orderer
+    volumes:
+      - ./channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
+      - ./crypto-config/ordererOrganizations/wangchen.com/orderers/orderer2.wangchen.com/msp:/var/hyperledger/orderer/msp
+      - ./crypto-config/ordererOrganizations/wangchen.com/orderers/orderer2.wangchen.com/tls:/var/hyperledger/orderer/tls
+    ports:
+      - 8050:7050
+    depends_on:
+      - k0
+      - k1
+      - k2
+  peer0.org1.wangchen.com:
+    container_name: peer0.org1.wangchen.com
+    environment:
+      - CORE_PEER_ID=peer0.org1.wangchen.com
+      - CORE_PEER_LOCALMSPID=bgOrg1Msp
+      - CORE_PEER_ADDRESS=peer0.org1.wangchen.com:7051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.org1.wangchen.com:7052
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org1.wangchen.com:7051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org1.wangchen.com:7051
+    extends:
+      file: base/peer-base.yaml
+      service: peer
+    volumes:
+      - ./crypto-config/peerOrganizations/org1.wangchen.com/peers/peer0.org1.wangchen.com/msp:/etc/hyperledger/fabric/msp
+      - ./crypto-config/peerOrganizations/org1.wangchen.com/peers/peer0.org1.wangchen.com/tls:/etc/hyperledger/fabric/tls
+    ports:
+      - 9051:7051
+      - 9052:7052
+      - 9053:7053
+  peer1.org1.wangchen.com:
+    container_name: peer1.org1.wangchen.com
+    environment:
+      - CORE_PEER_ID=peer1.org1.wangchen.com
+      - CORE_PEER_LOCALMSPID=bgOrg1Msp
+      - CORE_PEER_ADDRESS=peer1.org1.wangchen.com:7051
+      - CORE_PEER_CHAINCODEADDRESS=peer1.org1.wangchen.com:7052
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.org1.wangchen.com:7051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org1.wangchen.com:7051
+    extends:
+      file: base/peer-base.yaml
+      service: peer
+    volumes:
+      - ./crypto-config/peerOrganizations/org1.wangchen.com/peers/peer1.org1.wangchen.com/msp:/etc/hyperledger/fabric/msp
+      - ./crypto-config/peerOrganizations/org1.wangchen.com/peers/peer1.org1.wangchen.com/tls:/etc/hyperledger/fabric/tls
+    ports:
+      - 10051:7051
+      - 10052:7052
+      - 10053:7053
+    depends_on:
+      - peer0.org1.wangchen.com
+  peer0.org2.wangchen.com:
+    container_name: peer0.org2.wangchen.com
+    environment:
+      - CORE_PEER_ID=peer0.org2.wangchen.com
+      - CORE_PEER_LOCALMSPID=bgOrg2Msp
+      - CORE_PEER_ADDRESS=peer0.org2.wangchen.com:7051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.org2.wangchen.com:7052
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org2.wangchen.com:7051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org2.wangchen.com:7051
+    extends:
+      file: base/peer-base.yaml
+      service: peer
+    volumes:
+      - ./crypto-config/peerOrganizations/org2.wangchen.com/peers/peer0.org2.wangchen.com/msp:/etc/hyperledger/fabric/msp
+      - ./crypto-config/peerOrganizations/org2.wangchen.com/peers/peer0.org2.wangchen.com/tls:/etc/hyperledger/fabric/tls
+    ports:
+      - 11051:7051
+      - 11052:7052
+      - 11053:7053
+  peer1.org2.wangchen.com:
+    container_name: peer1.org2.wangchen.com
+    environment:
+      - CORE_PEER_ID=peer1.org2.wangchen.com
+      - CORE_PEER_LOCALMSPID=bgOrg2Msp
+      - CORE_PEER_ADDRESS=peer1.org2.wangchen.com:7051
+      - CORE_PEER_CHAINCODEADDRESS=peer1.org2.wangchen.com:7052
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.org2.wangchen.com:7051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org2.wangchen.com:7051
+    extends:
+      file: base/peer-base.yaml
+      service: peer
+    volumes:
+      - ./crypto-config/peerOrganizations/org2.wangchen.com/peers/peer1.org2.wangchen.com/msp:/etc/hyperledger/fabric/msp
+      - ./crypto-config/peerOrganizations/org2.wangchen.com/peers/peer1.org2.wangchen.com/tls:/etc/hyperledger/fabric/tls
+    ports:
+      - 12051:7051
+      - 12052:7052
+      - 12053:7053
+    depends_on:
+      - peer0.org2.wangchen.com
+  cli:
+    container_name: cli
+    image: hyperledger/fabric-tools
+    tty: true
+    privileged: true
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_PEER_LOCALMSPTYPE=bccsp
+      - CORE_LOGGING_LEVEL=DEBUG
+      - CORE_PEER_LOCALMSPID=bgOrg1Msp
+      - CORE_PEER_ADDRESS=peer0.org1.wangchen.com:7051
+      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.wangchen.com/users/Admin@org1.wangchen.com/msp
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: /bin/bash -c 'sleep 10; chmod u+x ./scripts/script.sh; ./scripts/script.sh $CHANNEL_NAME; sleep $TIMEOUT'
+    volumes:
+      - /var/run/:/host/var/run/
+      - ../chaincode/go:/opt/gopath/src/github.com/hyperledger/fabric/chaincode/go
+      - ./crypto-config:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto
+      - ./scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts
+      - ./channel-artifacts:/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts
+    depends_on:
+      - orderer1.wangchen.com
+      - orderer2.wangchen.com
+      - peer0.org1.wangchen.com
+      - peer1.org1.wangchen.com
+      - peer0.org2.wangchen.com
+      - peer1.org2.wangchen.com

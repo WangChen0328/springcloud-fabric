@@ -1,0 +1,39 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# 可以跟cli一起动态启动ca，需要自己编写shell，获得动态生成的证书
+version: '2'
+services:
+  ca0:
+    container_name: ca_peerOrg1
+    environment:
+      - FABRIC_CA_SERVER_CA_NAME=ca-peerOrg1
+      - FABRIC_CA_SERVER_TLS_ENABLED=false
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/tls
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/tls
+    extends:
+      file: base/ca-base.yaml
+      service: ca
+    ports:
+      - 7054:7054
+    volumes:
+      - ./crypto-config/peerOrganizations/org1.wangchen.com/tlsca:/etc/hyperledger/fabric-ca-server-config/tls
+      - ./crypto-config/peerOrganizations/org1.wangchen.com/ca/ca.org1.wangchen.com-cert.pem:/etc/hyperledger/fabric-ca-server-config/ca/cert.pem
+      - ./crypto-config/peerOrganizations/org1.wangchen.com/ca/ad0fe21f11ee6fc250bf4abf5ae11c027884a4fd85418dffca8e1a9fd664fc28_sk:/etc/hyperledger/fabric-ca-server-config/ca/keyfile_sk
+  ca1:
+    container_name: ca_peerOrg2
+    environment:
+      - FABRIC_CA_SERVER_CA_NAME=ca-peerOrg2
+      - FABRIC_CA_SERVER_TLS_ENABLED=false
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/tls
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/tls
+    extends:
+      file: base/ca-base.yaml
+      service: ca
+    ports:
+      - 8054:7054
+    volumes:
+      - ./crypto-config/peerOrganizations/org2.wangchen.com/tlsca:/etc/hyperledger/fabric-ca-server-config/tls
+      - ./crypto-config/peerOrganizations/org2.wangchen.com/ca/ca.org2.wangchen.com-cert.pem:/etc/hyperledger/fabric-ca-server-config/ca/cert.pem
+      - ./crypto-config/peerOrganizations/org2.wangchen.com/ca/ed589a83ab3de980a7e665d78647440c272decb54449c0d22352dc94f6deb4f7_sk:/etc/hyperledger/fabric-ca-server-config/ca/keyfile_sk
