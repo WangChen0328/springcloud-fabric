@@ -29,7 +29,7 @@ shadowJar {
          * peer chaincode install -n SimpleSample -v 1.0 -l java -p /springcloud-fabric/opt/chaincode/java (绝对路径)
          * example.SimpleChaincode 相对路径
          */
-        attributes 'Main-Class': 'example.SimpleChaincode'
+        attributes 'Main-Class': '/**src/main/java/(默认带的)*/example.SimpleChaincode'
     }
 }
 
