@@ -21,6 +21,16 @@
 (6) docker-compose -f ./docker-compose-ca.yaml up -d
 
 docker-compose-ca.yaml ：需要自己改 ca证书路径，也可以自己编写shell动态生成
- 
+
+---------------------------------------------------------------------------
+IDEA 启动 chaincode
+
+Program arguments: -peer.address=192.168.1.104:9052(码链地址)
+Environment variables: 
+    CORE_CHAINCODE_ID_NAME: SimpleSample:1.0
+    CORE_CHANCODE_LOGGING_LEVEL: debug
+    CORE_CHANCODE_LOGGING_SHIM: debug
+    CORE_PEER_ADDRESS: 192.168.1.104:9051
+
 
     
