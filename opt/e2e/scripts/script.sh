@@ -52,6 +52,7 @@ updateAnchorPeers() {
 installChaincode () {
     echo "=====================  start installChaincode ===================== "
 	peer chaincode install -n wangchen02 -v 1.0 -p github.com/hyperledger/fabric/chaincode/go/chaincode_wangchen02>&log.txt
+	peer chaincode install -n SimpleSample -v 1.0 -l java -p /opt/gopath/src/github.com/hyperledger/fabric/chaincode/java/wangchen>&log.txt
 	cat log.txt
 	echo "=====================  end installChaincode ======================= "
 	echo
@@ -60,6 +61,7 @@ installChaincode () {
 instantiateChaincode () {
 	echo "=====================  start instantiateChaincode ===================== "
 	peer chaincode instantiate -o orderer1.wangchen.com:7050 -C $CHANNEL_NAME -n wangchen02 -v 1.0 -c '{"Args":["init","a","100","b","200"]}' -P "AND ('bgOrg1Msp.peer','bgOrg2Msp.peer')" >&log.txt
+	peer chaincode instantiate -o orderer1.wangchen.com:7050 -C $CHANNEL_NAME -n SimpleSample -v 1.0 -c '{"Args":["init","a","100","b","200"]}' -P "AND ('bgOrg1Msp.peer','bgOrg2Msp.peer')" >&log.txt
 	cat log.txt
 	echo "=====================  end instantiateChaincode ======================= "
 	echo
