@@ -1,5 +1,3 @@
-package example
-
 plugins {
     id 'com.github.johnrengelman.shadow' version '2.0.3'
     id 'java'
@@ -27,6 +25,10 @@ shadowJar {
     classifier = null
 
     manifest {
+        /**
+         * peer chaincode install -n SimpleSample -v 1.0 -l java -p /springcloud-fabric/opt/chaincode/java (绝对路径)
+         * example.SimpleChaincode 相对路径
+         */
         attributes 'Main-Class': 'example.SimpleChaincode'
     }
 }
