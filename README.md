@@ -25,6 +25,8 @@ docker-compose-ca.yaml ：需要自己改 ca证书路径，也可以自己编写
 ---------------------------------------------------------------------------
 IDEA 启动 chaincode
 
+必须先启动一次码链
+
 Program arguments: -peer.address=192.168.1.104:9052(码链地址)
 Environment variables: 
     CORE_CHAINCODE_ID_NAME: SimpleSample:1.0
