@@ -6,7 +6,7 @@
 
 在IDEA 中运行 java chaincode 需要 jdk11
 
-建议将opt打个zip,在linux/opt中解压，可直接使用。
+建议将opt打个zip,在linux/opt中解压，可直接使用
 
 (1) yum -y install epel-release docker docker-compose golang
 
