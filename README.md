@@ -27,8 +27,12 @@ IDEA 启动 chaincode
 
 必须先启动一次码链
 
-Program arguments: -peer.address=192.168.1.104:9052(码链地址)
+Program arguments:
+
+    -peer.address=192.168.1.104:9052(码链地址)
+
 Environment variables: 
+    
     CORE_CHAINCODE_ID_NAME: SimpleSample:1.0
     CORE_CHANCODE_LOGGING_LEVEL: debug
     CORE_CHANCODE_LOGGING_SHIM: debug
