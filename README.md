@@ -4,8 +4,6 @@
 
 集群：zookeeper 3、kafka 3、orderer 2、peer 4、ca 2(个)
 
-在IDEA 中运行 java chaincode 需要 jdk11
-
 建议将opt打个zip,在linux/opt中解压，可直接使用
 
 (1) yum -y install epel-release docker docker-compose golang
@@ -25,18 +23,22 @@ docker-compose-ca.yaml ：需要自己改 ca证书路径，也可以自己编写
 ---------------------------------------------------------------------------
 IDEA 启动 chaincode
 
-必须先启动一次码链
+(1) 必须先启动一次码链
 
-Program arguments:
+(2) 需要 jdk11
 
-    -peer.address=192.168.1.104:9052(码链地址)
+(3) IDEA 环境配置
 
-Environment variables: 
+    Program arguments:
     
-    CORE_CHAINCODE_ID_NAME: SimpleSample:1.0
-    CORE_CHANCODE_LOGGING_LEVEL: debug
-    CORE_CHANCODE_LOGGING_SHIM: debug
-    CORE_PEER_ADDRESS: 192.168.1.104:9051
+        -peer.address=192.168.1.104:9052(码链地址)
+    
+    Environment variables: 
+        
+        CORE_CHAINCODE_ID_NAME: SimpleSample:1.0
+        CORE_CHANCODE_LOGGING_LEVEL: debug
+        CORE_CHANCODE_LOGGING_SHIM: debug
+        CORE_PEER_ADDRESS: 192.168.1.104:9051
 
 
     
