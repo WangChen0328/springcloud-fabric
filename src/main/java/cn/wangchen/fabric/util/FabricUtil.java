@@ -75,7 +75,12 @@ public class FabricUtil {
      * channel 名称
      */
     @Value("${hyperledger.fabric.chaincode.name}")
-    private String chainCode;
+    private String chainCodeName;
+    /**
+     * channel 名称
+     */
+    @Value("${hyperledger.fabric.chaincode.version}")
+    private String chainCodeVersion;
 
     private User getFabricUserForFabricCA() throws Exception {
         FabricCaUser user = new FabricCaUser(peerUser, peerOrganizationName);
@@ -117,7 +122,7 @@ public class FabricUtil {
 
         queryByChaincodeRequest.setArgs(args);
         queryByChaincodeRequest.setFcn(fcn);
-        queryByChaincodeRequest.setChaincodeID(ChaincodeID.newBuilder().setName(chainCode).build());
+        queryByChaincodeRequest.setChaincodeID(ChaincodeID.newBuilder().setName(chainCodeName).setVersion(chainCodeVersion).build());
 
         return channel.queryByChaincode(queryByChaincodeRequest);
     }
@@ -147,7 +152,7 @@ public class FabricUtil {
         channel.initialize();
 
         TransactionProposalRequest transactionProposalRequest = hfClient.newTransactionProposalRequest();
-        transactionProposalRequest.setChaincodeID(ChaincodeID.newBuilder().setName(chainCode).build());
+        transactionProposalRequest.setChaincodeID(ChaincodeID.newBuilder().setName(chainCodeName).setVersion(chainCodeVersion).build());
         transactionProposalRequest.setFcn(fcn);
         transactionProposalRequest.setArgs(args);
         transactionProposalRequest.setProposalWaitTime(300 * 1000);
