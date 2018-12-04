@@ -15,3 +15,8 @@ services:
           - KAFKA_UNCLEAN_LEADER_ELECTION_ENABLE=false
         ports:
           - "9092"
+    kafka_manager:
+        image: hlebalbau/kafka-manager:latest
+        environment:
+            APPLICATION_SECRET: "random-secret"
+        command: -Dpidfile.path=/dev/null

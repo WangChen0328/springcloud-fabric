@@ -30,7 +30,10 @@ dockerFabricSupportedPull() {
   done
 }
 
-
+dockerKafkaManagerPull() {
+	docker pull hlebalbau/kafka-manager:1.3.3.18
+    docker tag hlebalbau/kafka-manager:1.3.3.18 hlebalbau/kafka-manager
+}
 
 echo "===> Pulling fabric Images"
 dockerFabricPull
@@ -40,6 +43,9 @@ dockerCaPull
 
 echo "===> Pulling fabric ca Image"
 dockerFabricSupportedPull
+
+echo "===> Pulling fabric ca KafkaManager"
+dockerKafkaManagerPull
 echo
 echo "===> List out hyperledger docker images"
 docker images | grep hyperledger*

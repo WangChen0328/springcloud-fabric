@@ -70,6 +70,15 @@ services:
       - z0
       - z1
       - z2
+  kafka_manager:
+    container_name: kafka_manager
+    extends:
+      file: base/kafka-base.yaml
+      service: kafka_manager
+    environment:
+      ZK_HOSTS: "z0:2181,z1:2181,z2:2181"
+    ports:
+    - 9000:9000
   orderer1.wangchen.com:
     container_name: orderer1.wangchen.com
     environment:
