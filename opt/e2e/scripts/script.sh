@@ -15,11 +15,33 @@ CHANNEL_NAME=$1
 
 echo "Channel name : "$CHANNEL_NAME
 
-setGlobals () {
-	CORE_PEER_LOCALMSPID="bgOrg1Msp"
-	CORE_PEER_ADDRESS=peer0.org1.wangchen.com:7051
-	CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.wangchen.com/users/Admin@org1.wangchen.com/msp
-	echo "=====================  setGlobals ===================== "
+setPeer0Org1 () {
+	export set CORE_PEER_LOCALMSPID="bgOrg1Msp"
+	export set CORE_PEER_ADDRESS=peer0.org1.wangchen.com:7051
+	export set CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.wangchen.com/users/Admin@org1.wangchen.com/msp
+	echo "=====================  setGlobals peer0.org1.wangchen.com:7051  ===================== "
+	echo
+}
+
+setPeer1Org1 () {
+	export set CORE_PEER_LOCALMSPID="bgOrg1Msp"
+	export set CORE_PEER_ADDRESS=peer1.org1.wangchen.com:7051
+	export set CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.wangchen.com/users/Admin@org1.wangchen.com/msp
+	echo "=====================  setGlobals peer1.org1.wangchen.com:7051  ===================== "
+	echo
+}
+setPeer0Org2() {
+	export set CORE_PEER_LOCALMSPID="bgOrg2Msp"
+	export set CORE_PEER_ADDRESS=peer0.org2.wangchen.com:7051
+	export set CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org2.wangchen.com/users/Admin@org2.wangchen.com/msp
+	echo "=====================  setGlobals peer0.org2.wangchen.com:7051  ===================== "
+	echo
+}
+setPeer1Org2 () {
+	export set CORE_PEER_LOCALMSPID="bgOrg2Msp"
+	export set CORE_PEER_ADDRESS=peer1.org2.wangchen.com:7051
+	export set CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org2.wangchen.com/users/Admin@org2.wangchen.com/msp
+	echo "=====================  setGlobals peer1.org2.wangchen.com:7051  ===================== "
 	echo
 }
 
@@ -33,7 +55,22 @@ createChannel() {
 
 joinChannel() {
 	echo "=====================  start joinChannel ===================== "
+	setPeer0Org1
 	peer channel join -b $CHANNEL_NAME.block  >&log.txt
+	updateAnchorPeers
+
+	setPeer1Org1
+	peer channel join -b $CHANNEL_NAME.block  >&log.txt
+	updateAnchorPeers
+
+	setPeer0Org2
+	peer channel join -b $CHANNEL_NAME.block  >&log.txt
+	updateAnchorPeers
+
+	setPeer1Org2
+	peer channel join -b $CHANNEL_NAME.block  >&log.txt
+	updateAnchorPeers
+
 	cat log.txt
 	echo "=====================  end joinChannel ======================= "
 	echo
@@ -42,8 +79,7 @@ joinChannel() {
 updateAnchorPeers() {
 	echo "=====================  start updateAnchorPeers ===================== "
 	peer channel update -o orderer1.wangchen.com:7050 -c $CHANNEL_NAME -f ./channel-artifacts/Org1MSPanchors.tx >&log.txt
-	#peer channel update -o orderer2.wangchen.com:7050 -c $CHANNEL_NAME -f ./channel-artifacts/Org2MSPanchors.tx >&log.txt
-	
+	peer channel update -o orderer2.wangchen.com:7050 -c $CHANNEL_NAME -f ./channel-artifacts/Org2MSPanchors.tx >&log.txt
 	cat log.txt
 	echo "=====================  end updateAnchorPeers ======================= "
 	echo
@@ -51,8 +87,20 @@ updateAnchorPeers() {
 
 installChaincode () {
     echo "=====================  start installChaincode ===================== "
-	peer chaincode install -n wangchen02 -v 1.0 -p github.com/hyperledger/fabric/chaincode/go/chaincode_wangchen02>&log.txt
+	#peer chaincode install -n wangchen02 -v 1.0 -p github.com/hyperledger/fabric/chaincode/go/chaincode_wangchen02>&log.txt
+
+	setPeer0Org1
 	peer chaincode install -n SimpleSample -v 1.0 -l java -p /opt/gopath/src/github.com/hyperledger/fabric/chaincode/java/wangchen>&log.txt
+
+	setPeer1Org1
+	peer chaincode install -n SimpleSample -v 1.0 -l java -p /opt/gopath/src/github.com/hyperledger/fabric/chaincode/java/wangchen>&log.txt
+
+	setPeer0Org2
+	peer chaincode install -n SimpleSample -v 1.0 -l java -p /opt/gopath/src/github.com/hyperledger/fabric/chaincode/java/wangchen>&log.txt
+
+	setPeer1Org2
+	peer chaincode install -n SimpleSample -v 1.0 -l java -p /opt/gopath/src/github.com/hyperledger/fabric/chaincode/java/wangchen>&log.txt
+
 	cat log.txt
 	echo "=====================  end installChaincode ======================= "
 	echo
@@ -60,7 +108,8 @@ installChaincode () {
 
 instantiateChaincode () {
 	echo "=====================  start instantiateChaincode ===================== "
-	peer chaincode instantiate -o orderer1.wangchen.com:7050 -C $CHANNEL_NAME -n wangchen02 -v 1.0 -c '{"Args":["init","a","100","b","200"]}' -P "AND ('bgOrg1Msp.peer','bgOrg2Msp.peer')" >&log.txt
+	#peer chaincode instantiate -o orderer1.wangchen.com:7050 -C $CHANNEL_NAME -n wangchen02 -v 1.0 -c '{"Args":["init","a","100","b","200"]}' -P "AND ('bgOrg1Msp.member','bgOrg2Msp.member')" >&log.txt
+	setPeer0Org1
 	peer chaincode instantiate -o orderer1.wangchen.com:7050 -C $CHANNEL_NAME -n SimpleSample -v 1.0 -c '{"Args":["init","a","100","b","200"]}' -P "AND ('bgOrg1Msp.peer','bgOrg2Msp.peer')" >&log.txt
 	cat log.txt
 	echo "=====================  end instantiateChaincode ======================= "
