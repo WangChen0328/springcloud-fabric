@@ -2,11 +2,14 @@ package cn.wangchen.fabric.util;
 
 import cn.wangchen.fabric.pojo.FabricCaUser;
 import org.hyperledger.fabric.sdk.*;
+import org.hyperledger.fabric.sdk.exception.CryptoException;
+import org.hyperledger.fabric.sdk.exception.InvalidArgumentException;
 import org.hyperledger.fabric.sdk.security.CryptoSuite;
 import org.hyperledger.fabric_ca.sdk.HFCAClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 
 /**
@@ -108,20 +111,7 @@ public class FabricUtil {
      * @throws Exception
      */
     public Collection<ProposalResponse> query(String fcn, String... args) throws Exception {
-        HFClient hfClient = HFClient.createNewInstance();
-        CryptoSuite cryptoSuite = CryptoSuite.Factory.getCryptoSuite();
-        hfClient.setCryptoSuite(cryptoSuite);
-
-        User user = getFabricUserForFabricCA();
-        hfClient.setUserContext(user);
-
-        Channel channel = hfClient.newChannel(channelName);
-        Orderer orderer = hfClient.newOrderer(ordererName, ordererUrl);
-        channel.addOrderer(orderer);
-
-        Peer peer = hfClient.newPeer(peerName, peerUrl);
-        channel.addPeer(peer);
-        channel.initialize();
+        HFClient hfClient = getHFClient();
 
         QueryByChaincodeRequest queryByChaincodeRequest = hfClient.newQueryProposalRequest();
 
@@ -130,7 +120,7 @@ public class FabricUtil {
         queryByChaincodeRequest.setChaincodeLanguage(TransactionRequest.Type.JAVA);
         queryByChaincodeRequest.setChaincodeID(ChaincodeID.newBuilder().setName(chainCodeName).setVersion(chainCodeVersion).setPath(chainCodePath).build());
 
-        return channel.queryByChaincode(queryByChaincodeRequest);
+        return hfClient.getChannel(channelName).queryByChaincode(queryByChaincodeRequest);
     }
 
     /**
@@ -142,6 +132,25 @@ public class FabricUtil {
      * @throws Exception
      */
     public Collection<ProposalResponse> invoke(String fcn, String... args) throws Exception {
+        HFClient hfClient = getHFClient();
+        TransactionProposalRequest transactionProposalRequest = hfClient.newTransactionProposalRequest();
+        transactionProposalRequest.setChaincodeLanguage(TransactionRequest.Type.JAVA);
+        transactionProposalRequest.setChaincodeID(ChaincodeID.newBuilder().setName(chainCodeName).setVersion(chainCodeVersion).setPath(chainCodePath).build());
+        transactionProposalRequest.setFcn(fcn);
+        transactionProposalRequest.setArgs(args);
+        transactionProposalRequest.setProposalWaitTime(300 * 1000);
+        transactionProposalRequest.setUserContext(hfClient.getUserContext());
+
+        return hfClient.getChannel(channelName).sendTransactionProposal(transactionProposalRequest);
+    }
+
+    /**
+     * 可以剥离出来，存到文本或数据库中，spinrg cloud config
+     * 转化为对象
+     * @return
+     * @throws Exception
+     */
+    private HFClient getHFClient() throws Exception {
         HFClient hfClient = HFClient.createNewInstance();
         CryptoSuite cryptoSuite = CryptoSuite.Factory.getCryptoSuite();
         hfClient.setCryptoSuite(cryptoSuite);
@@ -156,16 +165,6 @@ public class FabricUtil {
         Peer peer = hfClient.newPeer(peerName, peerUrl);
         channel.addPeer(peer);
         channel.initialize();
-
-        TransactionProposalRequest transactionProposalRequest = hfClient.newTransactionProposalRequest();
-        transactionProposalRequest.setChaincodeID(ChaincodeID.newBuilder().setName(chainCodeName).setVersion(chainCodeVersion).setPath(chainCodePath).build());
-        transactionProposalRequest.setFcn(fcn);
-        transactionProposalRequest.setArgs(args);
-        transactionProposalRequest.setProposalWaitTime(300 * 1000);
-        transactionProposalRequest.setUserContext(user);
-
-        return channel.sendTransactionProposal(transactionProposalRequest);
+        return hfClient;
     }
-
-
 }

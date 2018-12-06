@@ -22,7 +22,6 @@ public class AccessService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         for (ProposalResponse response : query) {
             return response.getProposalResponse().getResponse().getPayload().toStringUtf8();
         }
@@ -32,10 +31,13 @@ public class AccessService {
     public String invoke(){
         Collection<ProposalResponse> invoke = null;
         try {
-            invoke = util.invoke("query", "a", "b", "1");
+            invoke = util.invoke("invoke", "a", "b", "1");
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return "";
+        for (ProposalResponse response : invoke) {
+            response.getProposalResponse().getResponse().getPayload().toStringUtf8();
+        }
+        return query();
     }
 }
