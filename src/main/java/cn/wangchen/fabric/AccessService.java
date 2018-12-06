@@ -36,8 +36,8 @@ public class AccessService {
             e.printStackTrace();
         }
         for (ProposalResponse response : invoke) {
-            response.getProposalResponse().getResponse().getPayload().toStringUtf8();
+            return response.getProposalResponse().getResponse().getPayload().toStringUtf8();
         }
-        return query();
+        return "";
     }
 }
