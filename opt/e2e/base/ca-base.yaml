@@ -9,7 +9,14 @@ services:
     ca:
         image: hyperledger/fabric-ca
         environment:
+            - TZ=Asia/Shanghai
+            
             - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
             - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca/cert.pem
             - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/ca/keyfile_sk
-        command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
+            
+            - FABRIC_CA_SERVER_TLS_ENABLED=true
+            - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/tls/cert.pem
+            - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/tls/keyfile_sk
+        command: #sh -c 'fabric-ca-server start -b admin:adminpw -d'
+                 sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/tls/cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/tls/keyfile_sk -b admin:adminpw -d'
